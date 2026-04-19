@@ -23,7 +23,32 @@ Route::get('/auth/google/callback', [LoginController::class, 'handleGoogleCallba
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
+    Route::get('/pengaduan/export', [PengaduanController::class, 'exportIndex'])->name('pengaduan.export.index');
+    Route::get('/pengaduan/export/pdf', [PengaduanController::class, 'exportPdf'])->name('pengaduan.export.pdf');
+    Route::get('/pengaduan/export/excel', [PengaduanController::class, 'exportExcel'])->name('pengaduan.export.excel');
+    
     Route::resource('pengaduan', PengaduanController::class);
     Route::patch('/pengaduan/{pengaduan}/status', [PengaduanController::class, 'updateStatus'])->name('pengaduan.updateStatus');
     Route::post('/pengaduan/{pengaduan}/tanggapan', [\App\Http\Controllers\TanggapanController::class, 'store'])->name('tanggapan.store');
+
+    // Profile Routes
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+
+    // Pages
+    Route::get('/prosedur-pengaduan', [\App\Http\Controllers\PageController::class, 'prosedur'])->name('page.prosedur');
+    Route::get('/tentang-website', [\App\Http\Controllers\PageController::class, 'about'])->name('page.about');
+
+    // Admin User Management
+    Route::middleware([\App\Http\Middleware\CheckAdminRole::class])->group(function () {
+        Route::resource('admin/users', \App\Http\Controllers\AdminUserController::class)->names([
+            'index' => 'admin.users.index',
+            'create' => 'admin.users.create',
+            'store' => 'admin.users.store',
+            'show' => 'admin.users.show',
+            'edit' => 'admin.users.edit',
+            'update' => 'admin.users.update',
+            'destroy' => 'admin.users.destroy',
+        ]);
+    });
 });

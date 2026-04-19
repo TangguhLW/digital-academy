@@ -6,10 +6,12 @@ use App\Models\Pengaduan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-
+use App\Exports\PengaduanExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 class PengaduanController extends Controller
 {
-    public function index(Request $request)
+    private function getFilterData(Request $request)
     {
         $query = Pengaduan::with('user');
         
@@ -37,12 +39,31 @@ class PengaduanController extends Controller
         }
         
         if (Auth::user()->role === 'admin') {
-            $pengaduan = $query->latest()->get();
+            return $query->latest()->get();
         } else {
-            $pengaduan = $query->where('id_user', Auth::id())->latest()->get();
+            return $query->where('id_user', Auth::id())->latest()->get();
         }
-        
+    }
+
+    public function index(Request $request)
+    {
+        $pengaduan = $this->getFilterData($request);
         return view('pengaduan.index', compact('pengaduan'));
+    }
+
+    public function exportIndex(Request $request)
+    {
+        return view('pengaduan.export');
+    }
+
+    public function exportPdf(Request $request)
+    {
+        return view('pengaduan.export-fallback');
+    }
+
+    public function exportExcel(Request $request)
+    {
+        return view('pengaduan.export-fallback');
     }
 
     public function create()
@@ -58,6 +79,7 @@ class PengaduanController extends Controller
             'isi_laporan' => 'required|string|min:20',
             'tanggal_kejadian' => 'required|date|before_or_equal:today',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'video' => 'nullable|mimetypes:video/mp4,video/avi,video/mpeg,video/quicktime|max:51200',
             'is_anonim' => 'nullable|boolean',
         ]);
 
@@ -68,6 +90,10 @@ class PengaduanController extends Controller
 
         if ($request->hasFile('foto')) {
             $validated['foto'] = $request->file('foto')->store('pengaduan', 'public');
+        }
+
+        if ($request->hasFile('video')) {
+            $validated['video'] = $request->file('video')->store('pengaduan_video', 'public');
         }
 
         Pengaduan::create($validated);
@@ -94,11 +120,27 @@ class PengaduanController extends Controller
 
         $validated = $request->validate([
             'status' => 'required|in:pending,diproses,selesai',
+            'hasil_foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'hasil_video' => 'nullable|mimetypes:video/mp4,video/avi,video/mpeg,video/quicktime|max:51200',
         ]);
+
+        if ($request->hasFile('hasil_foto')) {
+            if ($pengaduan->hasil_foto) {
+                Storage::disk('public')->delete($pengaduan->hasil_foto);
+            }
+            $validated['hasil_foto'] = $request->file('hasil_foto')->store('pengaduan_hasil', 'public');
+        }
+
+        if ($request->hasFile('hasil_video')) {
+            if ($pengaduan->hasil_video) {
+                Storage::disk('public')->delete($pengaduan->hasil_video);
+            }
+            $validated['hasil_video'] = $request->file('hasil_video')->store('pengaduan_hasil_video', 'public');
+        }
 
         $pengaduan->update($validated);
 
-        return back()->with('success', 'Status pengaduan berhasil diupdate!');
+        return back()->with('success', 'Status pengaduan dan hasil berhasil diupdate!');
     }
 
     public function destroy(Pengaduan $pengaduan)
@@ -109,6 +151,18 @@ class PengaduanController extends Controller
 
         if ($pengaduan->foto) {
             Storage::disk('public')->delete($pengaduan->foto);
+        }
+
+        if ($pengaduan->video) {
+            Storage::disk('public')->delete($pengaduan->video);
+        }
+
+        if ($pengaduan->hasil_foto) {
+            Storage::disk('public')->delete($pengaduan->hasil_foto);
+        }
+
+        if ($pengaduan->hasil_video) {
+            Storage::disk('public')->delete($pengaduan->hasil_video);
         }
 
         $pengaduan->delete();

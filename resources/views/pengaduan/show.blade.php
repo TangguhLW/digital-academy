@@ -32,8 +32,14 @@
                 </div>
 
                 <div class="flex items-center gap-4 py-4 mb-6 border-y border-gray-100">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-600 font-bold text-lg shrink-0">
-                        {{ strtoupper(substr($pengaduan->is_anonim ? 'A' : $pengaduan->user->nama, 0, 1)) }}
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-600 font-bold text-lg shrink-0 overflow-hidden shadow-sm">
+                        @if(!$pengaduan->is_anonim && $pengaduan->user->avatar && file_exists(public_path('storage/' . $pengaduan->user->avatar)))
+                            <img src="{{ asset('storage/' . $pengaduan->user->avatar) }}" alt="{{ $pengaduan->user->nama }}" class="w-full h-full object-cover">
+                        @elseif(!$pengaduan->is_anonim && $pengaduan->user->avatar && str_starts_with($pengaduan->user->avatar, 'http'))
+                            <img src="{{ $pengaduan->user->avatar }}" alt="{{ $pengaduan->user->nama }}" class="w-full h-full object-cover">
+                        @else
+                            {{ strtoupper(substr($pengaduan->is_anonim ? 'A' : $pengaduan->user->nama, 0, 1)) }}
+                        @endif
                     </div>
                     <div>
                         <p class="font-bold text-text-primary text-sm">
@@ -56,7 +62,7 @@
                 </div>
 
                 @if($pengaduan->foto)
-                <div>
+                <div class="mb-6">
                     <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Foto Pendukung</h3>
                     <a href="{{ asset('storage/' . $pengaduan->foto) }}" target="_blank" class="block rounded-xl overflow-hidden shadow-md group relative">
                         <img src="{{ asset('storage/' . $pengaduan->foto) }}" alt="Lampiran {{ $pengaduan->judul }}" class="w-full h-auto max-h-[400px] object-cover group-hover:scale-105 transition-transform duration-500">
@@ -67,6 +73,18 @@
                             </span>
                         </div>
                     </a>
+                </div>
+                @endif
+
+                @if($pengaduan->video)
+                <div>
+                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Video Pendukung</h3>
+                    <div class="rounded-xl overflow-hidden shadow-md bg-black">
+                        <video controls class="w-full h-auto max-h-[400px]">
+                            <source src="{{ asset('storage/' . $pengaduan->video) }}" type="video/mp4">
+                            Browser Anda tidak mendukung tag video.
+                        </video>
+                    </div>
                 </div>
                 @endif
             </div>
@@ -95,8 +113,14 @@
                             <div class="flex max-w-[85%] md:max-w-[75%] {{ $isMe ? 'flex-row-reverse' : 'flex-row' }} items-end gap-3">
                                 
                                 <!-- Avatar -->
-                                <div class="w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm {{ $isAdmin ? 'bg-gradient-primary' : 'bg-gray-400' }}">
-                                    {{ strtoupper(substr($tanggapan->user->nama, 0, 1)) }}
+                                <div class="w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm overflow-hidden {{ $isAdmin ? 'bg-gradient-primary' : 'bg-gray-400' }}">
+                                    @if( (!$pengaduan->is_anonim || $isAdmin) && $tanggapan->user->avatar && file_exists(public_path('storage/' . $tanggapan->user->avatar)) )
+                                        <img src="{{ asset('storage/' . $tanggapan->user->avatar) }}" alt="{{ $tanggapan->user->nama }}" class="w-full h-full object-cover">
+                                    @elseif( (!$pengaduan->is_anonim || $isAdmin) && $tanggapan->user->avatar && str_starts_with($tanggapan->user->avatar, 'http') )
+                                        <img src="{{ $tanggapan->user->avatar }}" alt="{{ $tanggapan->user->nama }}" class="w-full h-full object-cover">
+                                    @else
+                                        {{ strtoupper(substr((!$isAdmin && $pengaduan->is_anonim && !$isMe) ? 'A' : $tanggapan->user->nama, 0, 1)) }}
+                                    @endif
                                 </div>
                                 
                                 <!-- Bubble -->
@@ -233,12 +257,45 @@
             </ul>
         </div>
 
+        @if($pengaduan->hasil_foto || $pengaduan->hasil_video)
+        <!-- Hasil Tindak Lanjut -->
+        <div class="bg-emerald-50 rounded-2xl border border-emerald-100 p-6">
+            <h3 class="text-sm font-bold text-emerald-800 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Hasil Tindak Lanjut
+            </h3>
+            
+            <div class="space-y-4">
+                @if($pengaduan->hasil_foto)
+                <div>
+                    <p class="text-xs font-semibold text-emerald-700 mb-2">Foto Hasil</p>
+                    <a href="{{ asset('storage/' . $pengaduan->hasil_foto) }}" target="_blank" class="block rounded-xl overflow-hidden shadow-sm group relative border border-emerald-200">
+                        <img src="{{ asset('storage/' . $pengaduan->hasil_foto) }}" alt="Foto Hasil" class="w-full h-auto object-cover">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                    </a>
+                </div>
+                @endif
+
+                @if($pengaduan->hasil_video)
+                <div>
+                    <p class="text-xs font-semibold text-emerald-700 mb-2">Video Hasil</p>
+                    <div class="rounded-xl overflow-hidden shadow-sm border border-emerald-200 bg-black">
+                        <video controls class="w-full h-auto">
+                            <source src="{{ asset('storage/' . $pengaduan->hasil_video) }}" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+        @endif
+
         <!-- Admin Actions -->
         @if(Auth::user()->role === 'admin')
         <div class="bg-red-50 rounded-2xl border border-red-100 p-6 relative overflow-hidden group">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-red-100 rounded-full opacity-50 blur-xl group-hover:scale-150 transition-transform duration-700"></div>
             <h3 class="text-sm font-bold text-red-800 uppercase tracking-wider mb-4 relative z-10">Tindakan Admin</h3>
-            <form method="POST" action="{{ route('pengaduan.updateStatus', $pengaduan) }}" class="relative z-10">
+            <form method="POST" action="{{ route('pengaduan.updateStatus', $pengaduan) }}" class="relative z-10" enctype="multipart/form-data">
                 @csrf
                 @method('PATCH')
                 <div class="mb-4">
@@ -249,12 +306,49 @@
                         <option value="selesai" {{ $pengaduan->status === 'selesai' ? 'selected' : '' }}>Selesai</option>
                     </select>
                 </div>
+                
+                <div class="mb-4 space-y-3 border-t border-red-200/50 pt-4 mt-4">
+                    <label class="block text-xs font-semibold text-red-700">Lampirkan Hasil (Opsional)</label>
+                    
+                    <div>
+                        <label class="block text-xs font-medium text-red-600 mb-1">Foto Hasil (Max 2MB)</label>
+                        <input type="file" name="hasil_foto" class="w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100" accept="image/*">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-medium text-red-600 mb-1 mt-3">Video Hasil (Max 50MB)</label>
+                        <input type="file" name="hasil_video" class="w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100" accept="video/*">
+                    </div>
+                </div>
+
                 <button type="submit" class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-bold hover:bg-red-700 shadow-md hover:shadow-lg transition-all duration-300">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
                     Simpan Perubahan
                 </button>
             </form>
+            <form method="POST" action="{{ route('pengaduan.destroy', $pengaduan) }}" class="relative z-10 mt-4" onsubmit="return confirm('Apakah Anda yakin ingin menghapus laporan ini? Tindakan ini tidak dapat dibatalkan.')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-red-300 text-red-600 rounded-xl font-bold hover:bg-red-600 hover:text-white hover:border-red-600 shadow-sm transition-all duration-300">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    Hapus Laporan
+                </button>
+            </form>
         </div>
+        @else
+        @if(Auth::id() === $pengaduan->id_user)
+        <div class="bg-gray-50 rounded-2xl border border-gray-200 p-6">
+            <h3 class="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4">Tindakan</h3>
+            <form method="POST" action="{{ route('pengaduan.destroy', $pengaduan) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus laporan ini? Tindakan ini tidak dapat dibatalkan.')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-300 text-gray-600 rounded-xl font-bold hover:bg-red-600 hover:text-white hover:border-red-600 shadow-sm transition-all duration-300">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    Hapus Laporan Saya
+                </button>
+            </form>
+        </div>
+        @endif
         @endif
     </div>
 </div>

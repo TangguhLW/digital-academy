@@ -64,7 +64,7 @@
                         </div>
                     </label>
                     <label class="relative flex cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm focus:outline-none hover:border-primary/50 hover:bg-red-50/30 transition-all has-[:checked]:border-primary has-[:checked]:bg-red-50 has-[:checked]:ring-1 has-[:checked]:ring-primary">
-                        <input type="radio" name="klasifikasi" value="informasi" class="sr-only">
+                        <input type="radio" name="klasifikasi" value="permintaan_informasi" class="sr-only">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -122,41 +122,78 @@
                           class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:border-primary focus:ring-4 focus:ring-red-100 transition-all outline-none resize-y">{{ old('isi_laporan') }}</textarea>
             </div>
 
-            <!-- Upload Foto Drag & Drop -->
-            <div class="space-y-2">
-                <label class="block text-sm font-bold text-text-primary">Foto Pendukung (Opsional)</label>
-                
-                <div class="relative group"
-                     @dragover.prevent="isDragging = true"
-                     @dragleave.prevent="isDragging = false"
-                     @drop.prevent="isDragging = false; const dt = $event.dataTransfer; if(dt.files.length) { $refs.fileInput.files = dt.files; fileName = dt.files[0].name; const reader = new FileReader(); reader.onload = e => $refs.preview.src = e.target.result; reader.readAsDataURL(dt.files[0]); }">
+            <!-- Upload Media Drag & Drop -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Upload Foto -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-bold text-text-primary">Foto Pendukung (Opsional)</label>
                     
-                    <input type="file" id="foto" name="foto" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" x-ref="fileInput"
-                           @change="if($event.target.files.length) { fileName = $event.target.files[0].name; const reader = new FileReader(); reader.onload = e => $refs.preview.src = e.target.result; reader.readAsDataURL($event.target.files[0]); } else { fileName = ''; $refs.preview.src = ''; }">
-                    
-                    <div :class="{'border-primary bg-red-50': isDragging, 'border-gray-300 bg-gray-50 group-hover:border-primary/50 group-hover:bg-red-50/20': !isDragging}" 
-                         class="border-2 border-dashed rounded-2xl p-8 transition-all flex flex-col items-center justify-center text-center">
+                    <div class="relative group h-full"
+                         @dragover.prevent="isDragging = true"
+                         @dragleave.prevent="isDragging = false"
+                         @drop.prevent="isDragging = false; const dt = $event.dataTransfer; if(dt.files.length) { $refs.fileInput.files = dt.files; fileName = dt.files[0].name; const reader = new FileReader(); reader.onload = e => $refs.preview.src = e.target.result; reader.readAsDataURL(dt.files[0]); }">
                         
-                        <div x-show="!fileName">
-                            <div class="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 mx-auto text-gray-400 group-hover:text-primary transition-colors">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                            </div>
-                            <p class="text-sm font-bold text-text-primary mb-1">Klik untuk upload atau drag & drop</p>
-                            <p class="text-xs text-text-secondary">SVG, PNG, JPG atau GIF (Max. 2MB)</p>
-                        </div>
-
-                        <!-- Preview Area -->
-                        <div x-show="fileName" class="w-full max-w-sm mx-auto" x-cloak>
-                            <div class="relative rounded-xl overflow-hidden shadow-md">
-                                <img x-ref="preview" src="" class="w-full h-48 object-cover">
-                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                    <span class="text-white font-medium text-sm flex items-center gap-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                        Ganti Foto
-                                    </span>
+                        <input type="file" id="foto" name="foto" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" x-ref="fileInput"
+                               @change="if($event.target.files.length) { fileName = $event.target.files[0].name; const reader = new FileReader(); reader.onload = e => $refs.preview.src = e.target.result; reader.readAsDataURL($event.target.files[0]); } else { fileName = ''; $refs.preview.src = ''; }">
+                        
+                        <div :class="{'border-primary bg-red-50': isDragging, 'border-gray-300 bg-gray-50 group-hover:border-primary/50 group-hover:bg-red-50/20': !isDragging}" 
+                             class="border-2 border-dashed rounded-2xl p-8 transition-all flex flex-col items-center justify-center text-center h-full min-h-[220px]">
+                            
+                            <div x-show="!fileName">
+                                <div class="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 mx-auto text-gray-400 group-hover:text-primary transition-colors">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                                 </div>
+                                <p class="text-sm font-bold text-text-primary mb-1">Klik untuk upload foto</p>
+                                <p class="text-xs text-text-secondary">SVG, PNG, JPG (Max. 2MB)</p>
                             </div>
-                            <p class="text-xs text-text-secondary mt-2 truncate" x-text="fileName"></p>
+
+                            <!-- Preview Area -->
+                            <div x-show="fileName" class="w-full max-w-sm mx-auto" x-cloak>
+                                <div class="relative rounded-xl overflow-hidden shadow-md">
+                                    <img x-ref="preview" src="" class="w-full h-32 object-cover">
+                                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                        <span class="text-white font-medium text-sm flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                            Ganti
+                                        </span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-text-secondary mt-2 truncate" x-text="fileName"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Video -->
+                <div class="space-y-2" x-data="{ videoName: '', isVideoDragging: false }">
+                    <label class="block text-sm font-bold text-text-primary">Video Pendukung (Opsional)</label>
+                    
+                    <div class="relative group h-full"
+                         @dragover.prevent="isVideoDragging = true"
+                         @dragleave.prevent="isVideoDragging = false"
+                         @drop.prevent="isVideoDragging = false; const dt = $event.dataTransfer; if(dt.files.length) { $refs.videoInput.files = dt.files; videoName = dt.files[0].name; }">
+                        
+                        <input type="file" id="video" name="video" accept="video/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" x-ref="videoInput"
+                               @change="if($event.target.files.length) { videoName = $event.target.files[0].name; } else { videoName = ''; }">
+                        
+                        <div :class="{'border-primary bg-red-50': isVideoDragging, 'border-gray-300 bg-gray-50 group-hover:border-primary/50 group-hover:bg-red-50/20': !isVideoDragging}" 
+                             class="border-2 border-dashed rounded-2xl p-8 transition-all flex flex-col items-center justify-center text-center h-full min-h-[220px]">
+                            
+                            <div x-show="!videoName">
+                                <div class="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 mx-auto text-gray-400 group-hover:text-primary transition-colors">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                </div>
+                                <p class="text-sm font-bold text-text-primary mb-1">Klik untuk upload video</p>
+                                <p class="text-xs text-text-secondary">MP4, AVI, MOV (Max. 50MB)</p>
+                            </div>
+
+                            <div x-show="videoName" class="w-full max-w-sm mx-auto" x-cloak>
+                                <div class="w-16 h-16 bg-primary/10 rounded-full shadow-sm flex items-center justify-center mb-4 mx-auto text-primary">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                                <p class="text-sm font-bold text-text-primary mt-2 truncate" x-text="videoName"></p>
+                                <p class="text-xs text-text-secondary mt-1">Video siap diupload</p>
+                            </div>
                         </div>
                     </div>
                 </div>

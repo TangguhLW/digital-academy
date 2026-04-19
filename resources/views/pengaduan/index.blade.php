@@ -23,22 +23,59 @@
     @endif
 </div>
 
-<!-- Filters & Search Bar -->
-<div class="bg-surface p-4 rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
-    <form action="{{ route('pengaduan.index') }}" method="GET" class="relative w-full md:max-w-md">
-        @if(request('status'))
-            <input type="hidden" name="status" value="{{ request('status') }}">
-        @endif
-        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+<!-- Export & Filters -->
+<div class="bg-surface p-5 rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] mb-8 flex flex-col gap-5">
+    <form action="{{ route('pengaduan.index') }}" method="GET" id="filter-form" class="flex flex-col md:flex-row gap-4 items-end">
+        <div class="w-full md:w-1/3">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Pencarian</label>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari judul..." class="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+            </div>
         </div>
-        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari judul pengaduan..." class="w-full pl-11 pr-4 py-3 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+        <div class="w-full md:w-1/6">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+            <select name="status" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none text-gray-600">
+                <option value="">Semua Status</option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                <option value="diproses" {{ request('status') == 'diproses' ? 'selected' : '' }}>Diproses</option>
+                <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
+            </select>
+        </div>
+        <div class="w-full md:w-1/6">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Dari Tanggal</label>
+            <input type="date" name="tanggal_dari" value="{{ request('tanggal_dari') }}" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none text-gray-600">
+        </div>
+        <div class="w-full md:w-1/6">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Sampai Tanggal</label>
+            <input type="date" name="tanggal_sampai" value="{{ request('tanggal_sampai') }}" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none text-gray-600">
+        </div>
+        <div class="w-full md:w-auto flex gap-2">
+            <button type="submit" class="px-5 py-2.5 bg-gradient-primary text-white rounded-xl text-sm font-medium transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5">
+                Filter
+            </button>
+            <a href="{{ route('pengaduan.index') }}" class="px-5 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 rounded-xl text-sm font-medium transition-all">
+                Reset
+            </a>
+        </div>
     </form>
-    <div class="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
-        <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" class="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors {{ !request('status') ? 'bg-red-50 text-primary border border-red-100' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Semua Status</a>
-        <a href="{{ request()->fullUrlWithQuery(['status' => 'pending']) }}" class="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors {{ request('status') === 'pending' ? 'bg-amber-50 text-amber-600 border border-amber-200' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Pending</a>
-        <a href="{{ request()->fullUrlWithQuery(['status' => 'diproses']) }}" class="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors {{ request('status') === 'diproses' ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Diproses</a>
-        <a href="{{ request()->fullUrlWithQuery(['status' => 'selesai']) }}" class="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors {{ request('status') === 'selesai' ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50' }}">Selesai</a>
+
+    <div class="pt-4 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="text-sm text-gray-500">
+            Menampilkan <span class="font-bold text-gray-800">{{ $pengaduan->count() }}</span> data laporan
+        </div>
+        <div class="flex gap-2 w-full md:w-auto export-buttons">
+            <a href="{{ route('pengaduan.export.pdf', request()->all()) }}" target="_blank" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-primary hover:bg-primary hover:text-white border border-red-100 hover:border-primary rounded-xl text-sm font-semibold transition-all duration-300">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Export PDF
+            </a>
+            <a href="{{ route('pengaduan.export.excel', request()->all()) }}" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white border border-emerald-100 hover:border-emerald-600 rounded-xl text-sm font-semibold transition-all duration-300">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Export Excel
+            </a>
+        </div>
     </div>
 </div>
 
@@ -122,3 +159,16 @@
 @endif
 
 @endsection
+
+@push('scripts')
+@if(request('print') == 1)
+<script>
+    window.onload = function() {
+        // Add a slight delay to allow images to load
+        setTimeout(() => {
+            window.print();
+        }, 500);
+    }
+</script>
+@endif
+@endpush

@@ -25,6 +25,15 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+        
+        @media print {
+            aside, header, form, .toast, .export-buttons { display: none !important; }
+            main { padding: 0 !important; margin: 0 !important; background: white !important; }
+            .bg-surface { box-shadow: none !important; border: 1px solid #eee !important; page-break-inside: avoid; }
+            body { background: white !important; }
+            .print-hidden { display: none !important; }
+            a { text-decoration: none !important; color: black !important; }
+        }
     </style>
     @stack('styles')
 </head>
@@ -62,7 +71,19 @@
             <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-6">Manajemen Pengaduan</p>
             <a href="{{ route('pengaduan.index') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 {{ request()->routeIs('pengaduan.index') || request()->routeIs('pengaduan.show') ? 'bg-red-50 text-primary font-semibold shadow-sm' : 'text-text-secondary hover:bg-gray-50 hover:text-primary' }}">
                 <svg class="w-5 h-5 {{ request()->routeIs('pengaduan.index') || request()->routeIs('pengaduan.show') ? 'text-primary' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                @if(Auth::user()->role === 'admin') Kelola Pengaduan @else Riwayat Pengaduan @endif
+                @if(Auth::user()->role === 'admin') Kelola Pengaduan @else Pengaduan Saya @endif
+            </a>
+
+            @if(Auth::user()->role === 'admin')
+            <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 {{ request()->routeIs('admin.users.*') ? 'bg-red-50 text-primary font-semibold shadow-sm' : 'text-text-secondary hover:bg-gray-50 hover:text-primary' }}">
+                <svg class="w-5 h-5 {{ request()->routeIs('admin.users.*') ? 'text-primary' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                Kelola User
+            </a>
+            @endif
+
+            <a href="{{ route('pengaduan.export.index') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 {{ request()->routeIs('pengaduan.export.index') ? 'bg-red-50 text-primary font-semibold shadow-sm' : 'text-text-secondary hover:bg-gray-50 hover:text-primary' }}">
+                <svg class="w-5 h-5 {{ request()->routeIs('pengaduan.export.index') ? 'text-primary' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                Export Laporan
             </a>
 
             @if(Auth::user()->role !== 'admin')
@@ -71,6 +92,22 @@
                 Buat Pengaduan Baru
             </a>
             @endif
+
+            <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-6">Informasi</p>
+            <a href="{{ route('page.prosedur') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 {{ request()->routeIs('page.prosedur') ? 'bg-red-50 text-primary font-semibold shadow-sm' : 'text-text-secondary hover:bg-gray-50 hover:text-primary' }}">
+                <svg class="w-5 h-5 {{ request()->routeIs('page.prosedur') ? 'text-primary' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Prosedur Pengaduan
+            </a>
+            <a href="{{ route('page.about') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 {{ request()->routeIs('page.about') ? 'bg-red-50 text-primary font-semibold shadow-sm' : 'text-text-secondary hover:bg-gray-50 hover:text-primary' }}">
+                <svg class="w-5 h-5 {{ request()->routeIs('page.about') ? 'text-primary' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-.586-1.414l-4.5-4.5A2 2 0 0012.586 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14z"/></svg>
+                Tentang Website
+            </a>
+
+            <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-6">Akun</p>
+            <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 {{ request()->routeIs('profile.edit') ? 'bg-red-50 text-primary font-semibold shadow-sm' : 'text-text-secondary hover:bg-gray-50 hover:text-primary' }}">
+                <svg class="w-5 h-5 {{ request()->routeIs('profile.edit') ? 'text-primary' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                Profile
+            </a>
         </div>
         
         <div class="p-4 border-t border-gray-50">
@@ -100,9 +137,15 @@
                     <span class="text-sm font-semibold text-text-primary">{{ Auth::user()->nama }}</span>
                     <span class="text-xs text-text-secondary capitalize">{{ Auth::user()->role }}</span>
                 </div>
-                <div class="w-11 h-11 rounded-full bg-gradient-primary border-2 border-white shadow-md flex items-center justify-center text-white font-bold text-lg cursor-pointer hover:shadow-lg transition-all hover:scale-105">
-                    {{ strtoupper(substr(Auth::user()->nama, 0, 1)) }}
-                </div>
+                <a href="{{ route('profile.edit') }}" class="w-11 h-11 rounded-full bg-gradient-primary border-2 border-white shadow-md flex items-center justify-center text-white font-bold text-lg cursor-pointer hover:shadow-lg transition-all hover:scale-105 overflow-hidden">
+                    @if(Auth::user()->avatar && file_exists(public_path('storage/' . Auth::user()->avatar)))
+                        <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->nama }}" class="w-full h-full object-cover">
+                    @elseif(Auth::user()->avatar && str_starts_with(Auth::user()->avatar, 'http'))
+                        <img src="{{ Auth::user()->avatar }}" alt="{{ Auth::user()->nama }}" class="w-full h-full object-cover">
+                    @else
+                        {{ strtoupper(substr(Auth::user()->nama, 0, 1)) }}
+                    @endif
+                </a>
             </div>
         </header>
 
